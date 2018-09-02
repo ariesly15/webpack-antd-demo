@@ -439,7 +439,7 @@ module.exports = {
 
 ## react-router
 
-[地址](https://reacttraining.com/react-router/) - [中文](https://react-router.docschina.org/)
+[地址](https://reacttraining.com/react-router/) | [中文](https://react-router.docschina.org/)
 
 ``` sh
 # 安装
@@ -526,7 +526,7 @@ import {HashRouter as Router, Route, Switch, Link} from 'react-router-dom'
 
 ## webpack-dev-server
 
-[GitHub](https://github.com/webpack/webpack-dev-server) - [中文文档](https://webpack.docschina.org/configuration/dev-server/)
+[GitHub](https://github.com/webpack/webpack-dev-server) | [中文文档](https://webpack.docschina.org/configuration/dev-server/)
 
 ``` sh
 # 安装
@@ -616,3 +616,75 @@ mkdir -p src/assets/images
 
 > 重新执行 `npm run server` 后, 浏览器打开 http://localhost:9090 , 在 `开发者工具` 中查看
 > ![](http://p395rsz0o.bkt.clouddn.com/elements.jpg)
+
+## 按需加载 code-splitting
+
+参考链接: [GitHub](https://github.com/jamiebuilds/react-loadable) | [React Loadable 简介](https://zhuanlan.zhihu.com/p/25874892)
+
+``` sh
+# 安装 react-loadable
+npm i react-loadable --save
+# 安装 babel-plugin-syntax-dynamic-import 来支持react-loadable的import方法
+npm i babel-plugin-syntax-dynamic-import --save-dev
+```
+
+修改 `.babelrc`
+
+``` js
+{
+    // ...
+    "plugins": [
+        // ...
+        "syntax-dynamic-import"
+    ]
+}
+```
+
+先准备一个 `Loding` 组件, 根据实际情况自行改写
+
+``` js
+// Loading 组件路径 src/component/Loading/index.js
+import React, { Component } from "react";
+
+export default class Loading extends Component {
+    render() {
+        const { isLoading, error } = this.props;
+
+        // Handle the loading state
+        if (isLoading) {
+            return <div>Loading...</div>
+        }
+        // Handle the error state
+        else if (error) {
+            return <div>
+                Sorry, there was a problem loading the page.
+                <div>{JSON.stringify(error, null, 4)}</div>
+            </div>
+        } else {
+            return null
+        }
+    }
+}
+```
+
+修改 `router/index.js` 文件
+
+``` js
+// ...
+import Loadable from 'react-loadable'
+import Loading from '../component/Loading'
+// ...
+/**
+此处为删除项
+import TestAntd from '../component/Hello/TestAntd'
+import TestRouter from '../component/Hello/TestRouter'
+ */
+const TestAntd = Loadable({
+    loader: () => import('../component/Hello/TestAntd'),
+    loading: Loading
+})
+const TestRouter = Loadable({
+    loader: () => import('../component/Hello/TestRouter'),
+    loading: Loading
+})
+```

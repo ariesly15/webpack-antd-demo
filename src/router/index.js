@@ -2,15 +2,23 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 12:33:09 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-02 14:41:57
+ * @Last Modified time: 2018-09-02 16:55:27
  */
 
 import React from 'react'
 import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom'
 
+import Loadable from 'react-loadable'
+import Loading from '../component/Loading'
 import Hello from '../component/Hello'
-import TestAntd from '../component/Hello/TestAntd'
-import TestRouter from '../component/Hello/TestRouter'
+const TestAntd = Loadable({
+    loader: () => import('../component/Hello/TestAntd'),
+    loading: Loading
+})
+const TestRouter = Loadable({
+    loader: () => import('../component/Hello/TestRouter'),
+    loading: Loading
+})
 
 const getRouter = () => <Router>
     <div>
