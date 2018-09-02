@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 20:52:11 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-02 21:22:24
+ * @Last Modified time: 2018-09-02 23:09:37
  */
 
 const path = require("path");
@@ -10,10 +10,14 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+// 如果预先定义过环境变量，就将其赋值给`ASSET_PATH`变量，否则赋值为根目录
+const ASSET_PATH = process.env.ASSET_PATH || '/';
+
 module.exports = {
     output: {
         path: path.join(__dirname, "./dist"),
-        filename: "[name].[chunkhash].js"
+        filename: "[name].[chunkhash].js",
+        publicPath: ASSET_PATH
     },
     module: {
         rules: [
