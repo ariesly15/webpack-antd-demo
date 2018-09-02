@@ -1,4 +1,4 @@
-# 从零搭建React全家桶框架教程
+# 搭建React框架教程
 
 ## 说明
 
@@ -532,3 +532,39 @@ import {HashRouter as Router, Route, Switch, Link} from 'react-router-dom'
 # 安装
 npm i webpack-dev-server --save-dev
 ```
+
+修改webpack.dev.js文件
+
+``` js
+module.exports = {
+    //...
+    devServer: {
+        contentBase: path.join(__dirname, 'dist'),
+        port: 9090
+    }
+}
+```
+
+devServer中的配置根据自身需求自行参照[文档](https://webpack.docschina.org/configuration/dev-server/)添加
+
+修改 `package.json` 文件, 在`scripts`中添加
+
+``` js
+{
+    // ...
+    "scripts": {
+        // ...
+        "server": "webpack-dev-server --config webpack.dev.js --mode development"
+    },
+    // ...
+}
+```
+
+**`historyApiFallback` 任意的404响应都被替代为index.html。
+有什么用呢？你现在运行`npm run server`，然后打开浏览器，访问http://localhost:9090 ,然后点击`TestRouter`到链接http://localhost:9090/router 然后刷新页面试试。是不是发现刷新后404了。为什么？dist文件夹里面并没有router.html,当然会404了，所以我们需要配置 `historyApiFallback` ，让所有的404定位到index.html**
+
+建议把 `router/index.js` 中的 `HashRouter` 改为 `BrowserRouter`
+
+> 执行 `npm run server` 后, 浏览器打开 http://localhost:9090 查看效果
+
+------

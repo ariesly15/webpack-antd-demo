@@ -1,39 +1,41 @@
 {
-  "name": "webpack-antd-demo",
-  "version": "1.0.0",
-  "description": "## 说明",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack --config webpack.dev.js --mode development"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aweleey/webpack-antd-demo.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/aweleey/webpack-antd-demo/issues"
-  },
-  "homepage": "https://github.com/aweleey/webpack-antd-demo#readme",
-  "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.0",
-    "babel-plugin-import": "^1.8.0",
-    "css-loader": "^1.0.0",
-    "html-webpack-plugin": "^3.2.0",
-    "style-loader": "^0.23.0",
-    "webpack": "^4.17.1",
-    "webpack-cli": "^3.1.0"
-  },
-  "dependencies": {
-    "antd": "^3.8.4",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
-    "react-router-dom": "^4.3.1"
-  }
+    "name": "webpack-antd-demo",
+    "version": "1.0.0",
+    "description": "## 说明",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "webpack --config webpack.dev.js --mode development",
+        "server": "webpack-dev-server --config webpack.dev.js --mode development"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/aweleey/webpack-antd-demo.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/aweleey/webpack-antd-demo/issues"
+    },
+    "homepage": "https://github.com/aweleey/webpack-antd-demo#readme",
+    "devDependencies": {
+        "@babel/core": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
+        "@babel/preset-react": "^7.0.0",
+        "babel-loader": "^8.0.0",
+        "babel-plugin-import": "^1.8.0",
+        "css-loader": "^1.0.0",
+        "html-webpack-plugin": "^3.2.0",
+        "style-loader": "^0.23.0",
+        "webpack": "^4.17.1",
+        "webpack-cli": "^3.1.0",
+        "webpack-dev-server": "^3.1.7"
+    },
+    "dependencies": {
+        "antd": "^3.8.4",
+        "react": "^16.4.2",
+        "react-dom": "^16.4.2",
+        "react-router-dom": "^4.3.1"
+    }
 }

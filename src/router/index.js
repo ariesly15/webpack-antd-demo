@@ -2,11 +2,11 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 12:33:09 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-02 13:42:02
+ * @Last Modified time: 2018-09-02 14:41:57
  */
 
 import React from 'react'
-import {HashRouter as Router, Route, Switch, Link} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom'
 
 import Hello from '../component/Hello'
 import TestAntd from '../component/Hello/TestAntd'
