@@ -568,3 +568,51 @@ devServer中的配置根据自身需求自行参照[文档](https://webpack.docs
 > 执行 `npm run server` 后, 浏览器打开 http://localhost:9090 查看效果
 
 ------
+
+## 编译图片
+
+``` sh
+npm i --save-dev url-loader file-loader
+```
+
+``` js
+// 修改webpack.dev.js, 添加规则(放在rules下)
+
+module.exports = {
+    // ...
+    module: {
+        rules: [
+            // ...
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [{
+                    loader: 'url-loader',
+                    options: {
+                        // olimit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求
+                        limit: 8192
+                    }
+                }]
+            }
+        ]
+    },
+    // ...  
+}
+```
+
+``` sh
+# 创建图片目录
+mkdir -p src/assets/images
+```
+
+``` js
+// 修改 `Hello/index.js` 文件添加如下代码(图片文件在源码中获取)
+<div>
+    <div>6kb</div>
+    <img src={require('../../assets/images/antd6kb.png')} />
+    <div>10kb</div>
+    <img src={require('../../assets/images/antd10kb.png')} />
+</div>
+```
+
+> 重新执行 `npm run server` 后, 浏览器打开 http://localhost:9090 , 在 `开发者工具` 中查看
+> ![](http://p395rsz0o.bkt.clouddn.com/elements.jpg)

@@ -9,6 +9,12 @@ export default class Hello extends Component {
             <Alert message="Info Text" type="info" />
             <Alert message="Warning Text" type="warning" />
             <Alert message="Error Text" type="error" />
+            <div>
+                <div>6kb</div>
+                <img src={require('../../assets/images/antd6kb.png')} />
+                <div>10kb</div>
+                <img src={require('../../assets/images/antd10kb.png')} />
+            </div>
         </div>
     }
 }

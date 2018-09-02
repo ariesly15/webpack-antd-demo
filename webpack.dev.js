@@ -1,5 +1,5 @@
 const path = require("path");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
     output: {
@@ -15,21 +15,31 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader']
-             }
+                use: ["style-loader", "css-loader"]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [{
+                    loader: 'url-loader',
+                    options: {
+                        // olimit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求
+                        limit: 8192
+                    }
+                }]
+            }
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
-            filename: 'index.html',
-            template: path.join(__dirname, 'src/index.html')
+            filename: "index.html",
+            template: path.join(__dirname, "src/index.html")
         })
     ],
     devServer: {
-        contentBase: path.join(__dirname, 'dist'),
+        contentBase: path.join(__dirname, "dist"),
         historyApiFallback: true,
         //  指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问，写法如下
-        host: '0.0.0.0',
+        host: "0.0.0.0",
         port: 9090
     }
 };
