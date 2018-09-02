@@ -33,6 +33,7 @@
   "dependencies": {
     "antd": "^3.8.4",
     "react": "^16.4.2",
-    "react-dom": "^16.4.2"
+    "react-dom": "^16.4.2",
+    "react-router-dom": "^4.3.1"
   }
 }

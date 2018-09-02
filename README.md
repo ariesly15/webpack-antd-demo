@@ -126,7 +126,7 @@ touch ./dist/index.html
 ```
 
 ``` html
-<!-- ./dist/index.html内容 -->
+<!-- dist/index.html内容 -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -141,7 +141,7 @@ touch ./dist/index.html
 </html>
 ```
 
-> 用浏览器打开`./dist/index.html`, 可以看到`webpack-antd-demo`
+> 用浏览器打开`dist/index.html`, 可以看到`webpack-antd-demo`
 
 -------
 
@@ -197,7 +197,7 @@ const useBabel = text => document.getElementById('app').innerHTML = text
 useBabel('正在使用babel')
 ```
 
-> 执行打包命令 `npm run dev` 浏览器打开 `./dist/index.html` 查看效果
+> 执行打包命令 `npm run dev` 浏览器打开 `dist/index.html` 查看效果
 
 -------
 
@@ -235,7 +235,7 @@ npm i @babel/preset-react --save-dev
 }
 ```
 
-> 执行打包命令 `npm run dev` 浏览器打开 `./dist/index.html` 查看效果
+> 执行打包命令 `npm run dev` 浏览器打开 `dist/index.html` 查看效果
 
 -------
 
@@ -277,7 +277,7 @@ render(
 )
 ```
 
-> 执行打包命令 `npm run dev` 浏览器打开 `./dist/index.html` 查看效果
+> 执行打包命令 `npm run dev` 浏览器打开 `dist/index.html` 查看效果
 
 -------
 
@@ -371,7 +371,7 @@ export default class Hello extends Component {
 }
 ```
 
-> 执行打包命令 `npm run dev` 浏览器打开 `./dist/index.html` 查看效果
+> 执行打包命令 `npm run dev` 浏览器打开 `dist/index.html` 查看效果
 
 -------
 
@@ -435,4 +435,100 @@ module.exports = {
         })
     ]
 };
+```
+
+## react-router
+
+[地址](https://reacttraining.com/react-router/) - [中文](https://react-router.docschina.org/)
+
+``` sh
+# 安装
+npm i --save react-router-dom
+
+# 新建router文件夹和组件
+cd src
+mkdir router && touch router/index.js
+```
+
+在 `src/commponent/Hello` 目录下创建 `TestAntd.js` 和 `TestRouter.js` 组件(此为测试路由创建, 正常情况下最好是每个文件夹是一个组件)
+
+``` js
+// TestAntd.js
+import React, {Component} from 'react';
+import { Alert } from "antd";
+
+export default class TestAntd extends Component {
+    render() {
+        return <div>
+            <Alert message="我是独立的 TestAntd 组件" type="success" />
+        </div>
+    }
+}
+
+// TestRouter.js
+import React, {Component} from 'react';
+import { Alert } from "antd";
+
+export default class TestRouter extends Component {
+    render() {
+        return <div>
+            <Alert message="我是独立的 TestRouter 组件" type="info" />
+        </div>
+    }
+}
+```
+
+按照 react-router 文档添加一个基本的router
+
+``` js
+// router/index.js 内容
+import React from 'react'
+import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom'
+
+import Hello from '../component/Hello'
+import TestAntd from '../component/Hello/TestAntd'
+import TestRouter from '../component/Hello/TestRouter'
+
+const getRouter = () => <Router>
+    <div>
+        <ul>
+            <li><Link to="/">首页</Link></li>
+            <li><Link to="/router">TBestRouter</Link></li>
+            <li><Link to="/antd">TestAntd</Link></li>
+        </ul>
+        <Switch>
+            <Route exact path="/" component={Hello} />
+            <Route exact path="/antd" component={TestAntd}/>
+            <Route exact path="/router" component={TestRouter}/>
+        </Switch>
+    </div>
+</Router>
+
+export default getRouter
+```
+
+> 执行打包命令 `npm run dev` 浏览器打开 `dist/index.html` 查看效果
+
+> 那么问题来了~我们发现点击`首页``TestRouter``TestAntd`没有反应。不要惊慌，这是正常的。因为我们 `router/index.js` 中使用的是 `BrowserRouter`, `BrowserRouter` 需要一个简单的web服务器, 有如下两种方法实现
+- Nginx, Apache, IIS等配置启动一个简单的的WEB服务器。
+- 使用webpack-dev-server来配置启动WEB服务器。
+
+> 或者我们先简单的修改一下 `router/index.js` 代码, 把 `BrowserRouter` 改为 `HashRouter` 即可立刻查看效果
+
+``` js
+// 把
+import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom'
+// 修改为
+import {HashRouter as Router, Route, Switch, Link} from 'react-router-dom'
+```
+
+-------
+
+## webpack-dev-server
+
+[GitHub](https://github.com/webpack/webpack-dev-server) - [中文文档](https://webpack.docschina.org/configuration/dev-server/)
+
+``` sh
+# 安装
+npm i webpack-dev-server --save-dev
 ```

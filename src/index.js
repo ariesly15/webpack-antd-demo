@@ -1,5 +1,5 @@
 import React from 'react'
 import {render} from 'react-dom'
-import Hello from './component/Hello'
+import getRouter from './router'
 
-render(<Hello/>,document.getElementById('app'))
+render(getRouter(),document.getElementById('app'))
