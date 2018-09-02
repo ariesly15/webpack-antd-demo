@@ -41,5 +41,8 @@ module.exports = {
         //  指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问，写法如下
         host: "0.0.0.0",
         port: 9090
+    },
+    optimization: {
+        runtimeChunk: "single"
     }
 };
