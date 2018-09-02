@@ -619,7 +619,7 @@ mkdir -p src/assets/images
 
 ## 按需加载 code-splitting
 
-参考链接: [GitHub](https://github.com/jamiebuilds/react-loadable) | [React Loadable 简介](https://zhuanlan.zhihu.com/p/25874892)
+参考链接: [GitHub](https://github.com/jamiebuilds/react-loadable) | [React Loadable 简介](https://zhuanlan.zhihu.com/p/25874892) | [react-loadable原理浅析](https://juejin.im/post/5a795187f265da4e7e109aac)
 
 ``` sh
 # 安装 react-loadable
@@ -688,3 +688,57 @@ const TestRouter = Loadable({
     loading: Loading
 })
 ```
+
+![](http://p395rsz0o.bkt.clouddn.com/code-spliting.jpg)
+
+只有路由匹配的时候，组件才被import进来，达到了code splitting的效果，也就是我们常说的按需加载，代码分块，而不是一开始就将全部组件加载。
+如上图所示, 点击不同的路由都会加载一个chunk.js, 代码中除了首页之外只写了两个按需加载的组件 `TestAntd` 和 `TestRouter`, 分别对应上图 `1.bundle.js` 和 `0.bundle.js` (对应关系根据实际开发打包而定, 不必关注)
+
+> 重新执行 `npm run server` 后, 浏览器打开 http://localhost:9090 查看效果
+
+------
+
+## 让组件支持静态属性 (static)
+
+``` sh
+npm i @babel/plugin-proposal-class-properties --save-dev
+```
+
+修改 `.babelrc` 文件
+
+``` js
+{
+    // ...
+    "plugins": [
+        // ...
+        "@babel/plugin-proposal-class-properties"
+    ]
+}
+```
+
+修改 `Hello/TestAntd.js` 文件来测试是否配置正确
+
+``` js
+import React, {Component} from 'react';
+import { Alert } from "antd";
+
+export default class TestAntd extends Component {
+
+    static defaultProps = {
+        value: 'test static'
+    }
+
+    render() {
+        const {value} = this.props
+
+        return <div>
+            <Alert message="我是独立的 TestAntd 组件" type="success" />
+            <div>{value}</div>
+        </div>
+    }
+}
+```
+
+> 重新执行 `npm run server` 后, 浏览器打开 http://localhost:9090 查看效果
+
+------
