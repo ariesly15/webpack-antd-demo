@@ -1,10 +1,12 @@
 const path = require("path");
+const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
+    devtool: "inline-source-map",
     output: {
         path: path.join(__dirname, "./dist"),
-        filename: "bundle.js"
+        filename: "[name].[chunkhash].js"
     },
     module: {
         rules: [
@@ -19,13 +21,15 @@ module.exports = {
             },
             {
                 test: /\.(png|jpg|gif)$/,
-                use: [{
-                    loader: 'url-loader',
-                    options: {
-                        // olimit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求
-                        limit: 8192
+                use: [
+                    {
+                        loader: "url-loader",
+                        options: {
+                            // olimit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求
+                            limit: 8192
+                        }
                     }
-                }]
+                ]
             }
         ]
     },
@@ -33,7 +37,8 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: "index.html",
             template: path.join(__dirname, "src/index.html")
-        })
+        }),
+        new webpack.HashedModuleIdsPlugin()
     ],
     devServer: {
         contentBase: path.join(__dirname, "dist"),
@@ -43,6 +48,15 @@ module.exports = {
         port: 9090
     },
     optimization: {
-        runtimeChunk: "single"
+        runtimeChunk: "single",
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
     }
 };
