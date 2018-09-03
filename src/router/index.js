@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 12:33:09 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-03 11:39:51
+ * @Last Modified time: 2018-09-03 15:14:01
  */
 
 import React from 'react'
@@ -11,6 +11,7 @@ import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom'
 import Loadable from 'react-loadable'
 import Loading from '../component/Loading'
 import Hello from '../component/Hello'
+import NotFound from '../component/NotFound'
 const TestAntd = Loadable({
     loader: () => import('../component/Hello/TestAntd'),
     loading: Loading
@@ -37,6 +38,7 @@ const getRouter = () => <Router>
             <Route exact path="/antd" component={TestAntd}/>
             <Route exact path="/router" component={TestRouter}/>
             <Route exact path="/testapi" component={TestApi}/>
+            <Route component={NotFound}/>
         </Switch>
     </div>
 </Router>
