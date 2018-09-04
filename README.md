@@ -1,8 +1,17 @@
-# 搭建React框架教程
+# React框架入门
 
 ## 说明
 
+> 项目托管于[GitHub](https://github.com/aweleey/webpack-antd-demo)
+
 1.本教程基于mac环境
+
+``` sh
+node -v
+# v6.9.5
+npm -v
+# 3.10.10
+```
 
 2.每个命令行块都是以根目录为基础的。例如下面命令行块，都是基于根目录的。
 
@@ -11,7 +20,7 @@ cd src/pages
 mkdir Home
 ```
 
-3.所用的库的版本(目前2018-09)是最新的
+3.所用的库的版本(2018年09月)是最新的
 webpack-antd-demo
 ├── antd@3.8.4
 ├── react@16.4.2
@@ -19,19 +28,39 @@ webpack-antd-demo
 └── webpack@4.17.1
 
 4.目录说明
+
+```
 webpack-antd-demo
+├── README.md                   // 本教程
+├── package.json
+├── pages                       // 放置页面, 业务页面代码
 ├── src
-│   ├── bootstrap
-│   │   └── index.js
+│   ├── api                     // 请求的api
+│   ├── assets                  // 资源文件夹
+│   ├── bootstrap               // 项目入口之前执行
+│   │   ├── http-interceptors.js    // 网络请求拦截器
+│   │   └── index.js            // bootstrap入口文件
 │   ├── common
-│   │   ├── constants.js
-│   │   └── utils.js
-│   ├── component   # 组件库, 如自定义的Header和Footer
-│   │   ├── Header
-│   │   └── Footer
-│   ├── page
-│   └── stores
-├── webpack.config.js
+│   │   ├── constants.js        // 用于存放静态变量
+│   │   └── utils.js            // 放置公共方法
+│   ├── component               // 自定义组件 , 例如 Loading 和 404
+│   │   ├── Loading
+│   │   │   └── index.js
+│   │   └── NotFound
+│   │       └── index.js
+│   ├── index.html              // 模板, HtmlWebpackPlugin插件会把相关资源注入后放入dist文件夹
+│   ├── index.js                // 项目入口
+│   ├── pages                   // 业务页面代码
+│   ├── router                  // 路由
+│   │   └── index.js
+│   └── store                   // 数据管理
+│       ├── app.js              
+│       ├── index.js            // 入口, 根据业务自行创建
+│       └── ui.js
+├── webpack.common.js           // webpack 公共配置
+├── webpack.dev.js              // webpack 开发配置
+└── webpack.prod.js             // webpack 线上配置
+```
 
 ## 初始化项目
 
@@ -1581,10 +1610,236 @@ cd common && touch utils.js contants.js
 
 ------
 
-performance: { hints: false }
+## i18n (react-intl) 推荐
+
+[GitHub](https://github.com/yahoo/react-intl) | [语法指南](https://formatjs.io/guides/message-syntax/)
+
+``` sh
+npm i react-intl intl -save
+// 创建相关文件
+cd src && mkdir I18N && touch app.js
+cd I18N && touch en_US.js zh_CN.js
+```
+
+> 为了兼容Safari各个版本，需要同时安装 intl，intl在大部分的『现代』浏览器中是默认自带的，但是Safari和IE11以下的版本就没有
+
+``` js
+//  src/app.js
+import React, { Component } from "react";
+import getRouter from "./router";
+import { IntlProvider, addLocaleData } from "react-intl";
+import { uiStore } from "./store";
+import { observer } from "mobx-react";
+import zh from 'react-intl/locale-data/zh'
+import en from 'react-intl/locale-data/en'
+addLocaleData([...en, ...zh])
+
+@observer
+export default class App extends Component {
+    getLocale() {
+        let result = {};
+        switch (uiStore.language) {
+            case "zh":
+                result = require("./I18N/zh_CN");
+                break;
+            case "en":
+                result = require("./I18N/en_US");
+                break;
+            default:
+                result = require("./I18N/zh_CN");
+        }
+        return result.default || result;
+    }
+
+    render() {
+        console.log('uiStore.language:', uiStore.language)
+        const messages = this.getLocale()
+
+        return (
+            <IntlProvider locale={uiStore.language} messages={messages}>
+                {getRouter()}
+            </IntlProvider>
+        );
+    }
+}
+```
+
+修改 `src/index.js`
+![src-index.jpg](http://p395rsz0o.bkt.clouddn.com/src-index.jpg)
+
+``` js
+// src/I18N/zh_CN.js
+export default {
+    hello: '这是一段放在国际化文件中的中文.',
+    withParams: '这是一段带有参数的国际化文案, { param }'
+}
+
+// src/I18N/en_US.js
+export default {
+    hello: 'This is a paragraph in English.',
+    withParams: 'This is an international copy with parameters, {param}'
+}
+```
+
+`store/ui.js` 中添加如下代码
+
+``` js
+@observable language = 'zh'
+
+@action
+updateLanguage(lang){
+    this.language = lang
+}
+```
+
+> 创建测试代码
+
+``` js
+// Hello/TestI18N.js 内容如下
+import React, { Component } from "react";
+import { FormattedMessage, FormattedDate, FormattedTime } from "react-intl";
+import { uiStore } from "../../store";
+import { Button } from "antd";
+
+export default class TestI18N extends Component {
+    render() {
+        return (
+            <div>
+                <Button onClick={() => uiStore.updateLanguage('en')}>to en</Button>
+                <Button onClick={() => uiStore.updateLanguage('zh')}>to zh</Button>
+                <div>
+                    <FormattedMessage id="hello" />
+                </div>
+                <div>
+                    <FormattedMessage
+                        id="withParams"
+                        values={{ param: "[我是param]" }}
+                    />
+                </div>
+                <div>
+                    <FormattedDate value={Date.now()}/>
+                </div>
+                <div>
+                    <FormattedTime value={Date.now()}/>
+                </div>
+            </div>
+        );
+    }
+}
+```
+
+`router/index.js` 中添加如下代码
+
+``` js
+const TestI18N = Loadable({
+    loader: () => import('../component/Hello/TestI18N'),
+    loading: Loading
+})
+
+<li><Link to="/i18n">i18n</Link></li>
+
+<Route exact path="/i18n" component={TestI18N}/>
+```
+
+进入页面自行查看效果
+
+------
+
+## i18n (i18n-js)
+
+``` sh
+npm i i18n-js lscache --save
+// 创建相关文件
+cd src && mkdir I18N
+cd I18N && touch index.js en_US.js zh_CN.js
+```
+
+> lscache: localstorage封装的库, 用于本地存储, 使用文档[点这里](https://github.com/pamelafox/lscache)
+> i18n-js: [GitHub]()
+
+首先在 `common/instants.js` 中添加
+
+``` js
+export const LOCAL_LANGUAGE = 'local_language'
+```
+
+把 `I18N` 目录中的文件补全代码
+
+``` js
+// index.js
+import lscache from 'lscache'
+import {LOCAL_LANGUAGE} from '../common/constants'
+import I18N from 'i18n-js'
+import en_US from './en_US'
+import zh_CN from './zh_CN'
+
+I18N.fallbacks = true
+I18N.translations = {
+    en_US,
+    zh_CN
+}
+I18N.defaultLocale = 'zh_CN'
+/**
+ * 存放在 localstorage 中, 默认 'zh_CN'
+ * 设置是只需要 lscache.set(LOCAL_LANGUAGE, 'en_US'), 并刷新页面
+ */
+const local = lscache.get(LOCAL_LANGUAGE)
+I18N.locale = local ? local : 'zh_CN'
+
+export default I18N
+
+// en_US.js
+export default {
+    hello: 'This is a paragraph in English.',
+    withParams: 'This is an international copy with parameters, {{param}}'
+}
+
+// zh_CN.js
+export default {
+    hello: '这是一段放在国际化文件中的中文.',
+    withParams: '这是一段带有参数的国际化文案, {{param}}'
+}
+```
+
+注入 `I18N`, 在 `bootstrap/index.js` 中添加
+
+``` js
+import i18n from '../I18N'
+
+window.i18n = global.i18n = i18n
+```
+
+改造 `Hello/index.js` 用于测试
+
+``` js
+import React, {Component} from 'react';
+import { Alert, Button } from "antd";
+import lscache from 'lscache'
+import {LOCAL_LANGUAGE} from '../../common/constants'
+
+export default class Hello extends Component {
+    render() {
+        return <div>
+            我是独立的 Hello 组件
+            <div>{i18n.t('hello')}</div>
+            <Alert message={i18n.t('withParams', {param: '--这个是参数--'})} type="success" />
+            <Button onClick={() => lscache.set(LOCAL_LANGUAGE, 'en_US')}>en_US</Button>
+            <div>
+                <div>6kb</div>
+                <img src={require('../../assets/images/antd6kb.png')} />
+                <div>10kb</div>
+                <img src={require('../../assets/images/antd10kb.png')} />
+            </div>
+        </div>
+    }
+}
+```
+
+> 相关代码 branch: i18n-v1
 
 ------
 
 <details>
-<summary></summary>
+<summary>what</summary>
+performance: { hints: false }
 </details>
