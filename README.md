@@ -34,35 +34,37 @@ webpack-antd-demo
 
 ```
 webpack-antd-demo
-├── README.md                   // 本教程
+├── README.md                       // 本教程
 ├── package.json
-├── pages                       // 放置页面, 业务页面代码
+├── pages                           // 放置页面, 业务页面代码
 ├── src
-│   ├── api                     // 请求的api
-│   ├── assets                  // 资源文件夹
-│   ├── bootstrap               // 项目入口之前执行
+│   ├── index.html                  // 模板, HtmlWebpackPlugin插件会把相关资源注入后放入dist文件夹
+│   ├── index.js                    // 项目入口
+│   ├── app.js                      // 页面入口
+│   ├── api                         // 请求的api
+│   ├── assets                      // 资源文件夹
+│   ├── bootstrap                   // 项目入口之前执行
 │   │   ├── http-interceptors.js    // 网络请求拦截器
-│   │   └── index.js            // bootstrap入口文件
+│   │   └── index.js                // bootstrap入口文件
 │   ├── common
-│   │   ├── constants.js        // 用于存放静态变量
-│   │   └── utils.js            // 放置公共方法
-│   ├── component               // 自定义组件 , 例如 Loading 和 404
+│   │   ├── constants.js            // 用于存放静态变量
+│   │   └── utils.js                // 放置公共方法
+│   ├── component                   // 自定义组件 , 例如 Loading 和 404
 │   │   ├── Loading
 │   │   │   └── index.js
 │   │   └── NotFound
 │   │       └── index.js
-│   ├── index.html              // 模板, HtmlWebpackPlugin插件会把相关资源注入后放入dist文件夹
-│   ├── index.js                // 项目入口
-│   ├── pages                   // 业务页面代码
-│   ├── router                  // 路由
+│   ├── I18N                        // 国际化
+│   ├── pages                       // 业务页面代码
+│   ├── router                      // 路由
 │   │   └── index.js
-│   └── store                   // 数据管理
+│   └── store                       // 数据管理
 │       ├── app.js              
-│       ├── index.js            // 入口, 根据业务自行创建
+│       ├── index.js                // 入口, 根据业务自行创建
 │       └── ui.js
-├── webpack.common.js           // webpack 公共配置
-├── webpack.dev.js              // webpack 开发配置
-└── webpack.prod.js             // webpack 线上配置
+├── webpack.common.js               // webpack 公共配置
+├── webpack.dev.js                  // webpack 开发配置
+└── webpack.prod.js                 // webpack 线上配置
 ```
 
 ## 初始化项目
