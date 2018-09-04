@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-03 13:50:28 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-03 14:10:39
+ * @Last Modified time: 2018-09-04 16:28:12
  */
 
  /**
@@ -24,11 +24,20 @@ import {observable, action} from 'mobx'
 export default class UiStore {
     // 表示在一时间段内请求的个数, 可用做全局 loading
     @observable reqCount = 0
+    @observable language = 'zh'
 
 
     @action
     updateReqCount(num = 0){
         this.reqCount = this.reqCount + num
         console.log('updateReqCount:', this.reqCount, 'args num:', num)
+    }
+
+    @action
+    updateLanguage(lang){
+        if(lang === ''){
+            throw new Error('updateLanguage 需要参数')
+        }
+        this.language = lang
     }
 }
