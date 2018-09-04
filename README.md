@@ -742,3 +742,850 @@ export default class TestAntd extends Component {
 > 重新执行 `npm run server` 后, 浏览器打开 http://localhost:9090 查看效果
 
 ------
+
+## 抽取公共代码
+
+![vendor.jpg](http://p395rsz0o.bkt.clouddn.com/vendor.jpg)
+
+可以看到 `bundle.js` 文件有 `3MB`, 因为此时 `bundle.js` 中包含了 `React`, `React-dom`, `React-Router` 等公共库文件, 这些代码基本上不会改变的。但是，他们合并在bundle.js里面，每次项目发布，重新请求bundle.js的时候，相当于重新请求了react等这些公共库。浪费资源
+
+修改 `webpack.dev.js`
+
+``` js
+module.exports = {
+    // ...
+    optimization: {
+        runtimeChunk: 'single'
+    }
+}
+```
+
+> 重新执行 `npm run server` 后可以看到公共库已被抽取
+![vendor-extract.jpg](http://p395rsz0o.bkt.clouddn.com/vendor-extract.jpg)
+
+------
+
+## 缓存
+
+[文档地址](https://webpack.docschina.org/guides/caching)
+
+想象一下这个场景
+
+我们网站上线了，用户第一次访问首页，下载了 `bundle.js` ，第二次访问又下载了 `bundle.js` 
+这肯定不行呀，所以我们一般都会做一个缓存，用户下载一次home.js后，第二次就不下载了。
+有一天，我们更新了home.js，但是用户不知道呀，用户还是使用本地旧的 `bundle.js` 
+怎么解决？每次代码更新后，打包生成的名字不一样。比如第一次叫`bundle.a.js` ，第二次叫 `bundle.b.js` 
+
+修改 `webpack.dev.js`
+
+``` js
+module.exports = {
+    output: {
+        // ...
+        filename: "[name].[chunkhash].js"
+    },
+    // ...
+    plugins: [
+        // ...
+        new webpack.HashedModuleIdsPlugin()
+    ],
+    // ...
+    optimization: {
+        runtimeChunk: "single",
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
+    }
+}
+```
+
+配置之后的，不管再添加任何新的本地依赖，对于每次构建，`vendor hash` 都会保持一致 [文档](https://webpack.docschina.org/guides/caching/#%E6%A8%A1%E5%9D%97%E6%A0%87%E8%AF%86%E7%AC%A6-module-identifiers-)
+
+------
+
+## 生产坏境构建
+
+[文档地址](https://webpack.docschina.org/guides/production)
+
+> 开发环境(development)和生产环境(production)的构建目标差异很大。在开发环境中，我们需要具有强大的、具有实时重新加载(live reloading)或热模块替换(hot module replacement)能力的 source map 和 localhost server。而在生产环境中，我们的目标则转向于关注更小的 bundle，更轻量的 source map，以及更优化的资源，以改善加载时间。由于要遵循逻辑分离，我们通常建议为每个环境编写彼此独立的 webpack 配置。
+
+``` sh
+touch webpack.prd.js
+```
+
+``` js
+// webpack.prod.js
+
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+    mode: 'production',
+    output: {
+        path: path.join(__dirname, "./dist"),
+        filename: "[name].[chunkhash].js"
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/, // 正则匹配以 .js 结尾的文件来使用 babel 解析
+                use: ["babel-loader?cacheDirectory=true"], // cacheDirectory是用来缓存编译结果，下次编译加速
+                include: path.join(__dirname, "src") // 需要解析的目录
+            },
+            {
+                test: /\.css$/,
+                use: ["style-loader", "css-loader"]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: "url-loader",
+                        options: {
+                            // olimit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求
+                            limit: 8192
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            filename: "index.html",
+            template: path.join(__dirname, "src/index.html")
+        }),
+        new webpack.HashedModuleIdsPlugin()
+    ],
+    optimization: {
+        runtimeChunk: "single",
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
+    }
+};
+```
+
+``` js
+// 修改package.json, 添加scripts
+{
+  // ...
+  "scripts": {
+    // ...
+    "prod": "webpack --config webpack.prod.js --color --progress"
+  },
+  // ...
+}
+```
+
+## 优化webpack配置
+
+`webpack.dev.js` 和 `webpack.prod.js` 中有很多相同的代码, 每次修改都要顾及到两个文件, 用 `webpack-merge` 优化一下
+
+``` sh
+# 创建公共配置
+touch webpack.common.js
+
+# 安装 webpack-merge
+npm i webpack-merge --save-dev
+```
+
+``` js
+// 修改 package.json文件, 修改后的 scripts 如下
+{
+  // ...
+  "scripts": {
+    "dev": "webpack-dev-server --config webpack.dev.js",
+    // 由于目前webpack.prod.js和webpack.common.js只是相差了一个 mode, 所以修改为如下命令, 后续添加less是统一抽离
+    "prod": "webpack --config webpack.common.js --mode production --color --progress"
+  },
+  // ...
+}
+```
+
+``` js
+// 抽取公共配置到 webpack.common.js 中
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+    output: {
+        path: path.join(__dirname, "./dist"),
+        filename: "[name].[chunkhash].js"
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                use: ["babel-loader?cacheDirectory=true"],
+                include: path.join(__dirname, "src")
+            },
+            {
+                test: /\.css$/,
+                use: ["style-loader", "css-loader"]
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: "url-loader",
+                        options: {
+                            limit: 8192
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            filename: "index.html",
+            template: path.join(__dirname, "src/index.html")
+        }),
+        new webpack.HashedModuleIdsPlugin()
+    ],
+    optimization: {
+        runtimeChunk: "single",
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
+    }
+};
+
+// webpack.dev.js 修改如下
+const path = require("path");
+const CommonConfig = require("./webpack.common");
+const WebpackMerge = require("webpack-merge");
+
+const DevConfig = {
+    devtool: "inline-source-map",
+    mode: "development",
+    devServer: {
+        contentBase: path.join(__dirname, "dist"),
+        historyApiFallback: true,
+        //  指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问，写法如下
+        host: "0.0.0.0",
+        port: 9090
+    }
+};
+
+module.exports = WebpackMerge(CommonConfig, DevConfig);
+```
+
+------
+
+## 打包优化
+
+每次打包前自动清理下dist文件。
+
+``` sh
+npm i clean-webpack-plugin --save-dev
+```
+
+``` js
+// webpack.common.js
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+plugins: [
+    new CleanWebpackPlugin(['dist'])
+]
+```
+------
+
+## 公共路径(public path)
+
+[文档](https://webpack.docschina.org/guides/public-path)
+
+## Store [mobx]
+
+[文档](https://cn.mobx.js.org/)
+
+``` sh
+# 安装
+npm i mobx mobx-react --save
+# 使用mobx开发, 需要启用decorators装饰器
+npm i @babel/plugin-proposal-decorators --save-dev
+# 创建 store 目录
+cd src && mkdir store && cd store
+touch index.js app.js
+```
+
+``` js
+// 修改 .balelrc 文件
+{
+    "presets": ["@babel/preset-env", "@babel/preset-react"],
+    "plugins": [
+        ["@babel/plugin-proposal-decorators", {"legacy": true}],
+        ["import",{
+            "libraryName": "antd",
+            "style": "css"
+        }],
+        "syntax-dynamic-import",
+        ["@babel/plugin-proposal-class-properties", {"loose" : true}]
+    ]
+}
+
+```
+
+``` jsx
+// store/index.js
+import AppStore from './app'
+
+export const appStore = new AppStore()
+
+// store/app.js
+import {observable, action} from 'mobx'
+
+export default class App {
+    @observable
+    count = 0
+
+    @action
+    updateCount(num){
+        this.count = this.count + num
+    }
+}
+
+// src/index.js
+import React from 'react'
+import {render} from 'react-dom'
+import getRouter from './router'
+import * as stores from './store'
+import {Provider} from 'mobx-react'
+
+render(<Provider {...stores}>
+    {getRouter()}
+</Provider>,document.getElementById('app'))
+```
+
+接下来测试一下, 修改 `TestAntd/index.js` 和 `TestRouter/index.js`
+
+``` jsx
+// TestAntd/index.js
+import React, {Component} from 'react';
+import { Alert } from "antd";
+import {observer, inject} from 'mobx-react'
+
+@inject('appStore')
+@observer
+export default class TestAntd extends Component {
+
+    static defaultProps = {
+        value: 'test static'
+    }
+
+    render() {
+        const {value, appStore} = this.props
+
+        return <div>
+            <div>count: {appStore.count}</div>
+            <button onClick={() => appStore.updateCount(1)}>++</button>
+            <button onClick={() => appStore.updateCount(-1)}>--</button>
+
+            <Alert message="我是独立的 TestAntd 组件" type="success" />
+            <div>{value}</div>
+        </div>
+    }
+}
+
+// TestRouter/index.js
+import React, {Component} from 'react';
+import { Alert } from "antd";
+import {observer, inject} from 'mobx-react'
+
+@inject('appStore')
+@observer
+export default class TestRouter extends Component {
+    render() {
+        const {appStore} = this.props
+        return <div>
+            <div>count: {appStore.count}</div>
+            <button onClick={() => appStore.updateCount(1)}>++</button>
+            <button onClick={() => appStore.updateCount(-1)}>--</button>
+            <Alert message="我是独立的 TestRouter 组件" type="info" />
+        </div>
+    }
+}
+```
+
+跳转到 `/antd` 点击 `++` 或者 `--`, 后在跳转到 `/router`查看count是否和之前一样, 自行测试看效果
+
+------
+
+## 网络请求 (axios)
+
+[GitHub](https://github.com/axios/axios) | [中文](https://www.kancloud.cn/yunye/axios/234845)
+
+安装请求库并创建一些测试代码, 涉及到的代码有点多, 耐心看完
+
+> 关于polyfill
+> Babel默认只转换新的JavaScript句法（syntax），而不转换新的API，比如Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise等全局对象，以及一些定义在全局对象上的方法（比如Object.assign）都不会转码。
+举例来说，ES6在Array对象上新增了Array.from方法。Babel就不会转码这个方法。如果想让这个方法运行，必须使用babel-polyfill，为当前环境提供一个垫片。
+
+``` sh
+npm i axios @babel/polyfill --save
+cd src && mkdir bootstrap api common
+touch bootstrap/index.js
+touch bootstrap/http-interceptors.js
+touch api/test.js
+touch store/ui.js
+```
+
+``` js
+// src/index.js 添加两行代码
+import './bootstrap'
+import "@babel/polyfill";
+```
+
+``` js
+// api/test.js
+/**
+ * {loading: true} 用于监控全局请求个数, 处理过程在 http-interceptors.js 中
+ */
+import axios from 'axios'
+
+export default {
+    testGet(){
+        return axios.get('/api/testGet', {loading: true})
+    },
+    testPost(params){
+        return axios.post('/api/testPost', params, {loading: true})
+    },
+    testDelete(params){
+        return axios.delete('/api/testDelete', {data: params})
+    }
+}
+```
+
+``` js
+// bootstrap/index.js  render之前进行注入的一些代码, 例如请求拦截器
+import './http-interceptors'
+```
+
+<details>
+<summary>bootstrap/http-interceptors.js 相关错误处理和业务逻辑自行补全 **点击查看代码**</summary>
+``` js
+// bootstrap/http-interceptors.js 相关错误处理和业务逻辑自行补全
+import axios from 'axios'
+import {uiStore} from '../store'
+
+axios.defaults.baseURL = "/"
+// token 验证, 需要的话自行打开注释
+// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+
+// 添加请求拦截器
+axios.interceptors.request.use(config => {
+    console.log('%c request config', 'font-size:21pt;color:green', config)
+    // 发送请求之前做的事情
+    if(config.loading === true){
+        uiStore.updateReqCount(+config.loading)
+    }
+    return config
+}, error => {
+    console.log('%c request error', 'font-size:21pt;color:red', error)
+    // 对请求错误处理
+    uiStore.updateReqCount(-1)
+    return Promise.reject(error)
+})
+
+/**
+ * 后端返回的数据格式
+ * {
+ *   code: 0,
+ *   msg: '这是一条成功的消息, code为0, 其他code根据需求自定义',
+ *   data: {...}
+ * }
+ */
+// 添加响应拦截器
+axios.interceptors.response.use(res => {
+    console.log('%c response res', 'font-size:21pt;color:blue', res)
+    // 对响应数据处理
+    if(res && res.config && res.config.loading === true){
+        uiStore.updateReqCount(-1)
+    }
+    const result = res.data
+    if(result.hasOwnProperty('code') && result.code !== 0){
+        // 根据需求自定义错误码, 统一处理
+    }
+    return result.data
+}, error => {
+    console.log('%c response error', 'font-size:21pt;color:red', error)
+    // 对响应错误处理
+    uiStore.updateReqCount(-1)
+    return Promise.reject(error)
+})
+
+const handleError = (error) => {
+    if(error instanceof Error){
+        console.log('[ERROR]:', error)
+    }
+}
+```
+</details>
+
+``` js
+/**
+  * store/ui.js
+  * UI Store中常见存储的信息有：
+  * Session 信息
+  * 不会再后端存储的信息
+  * 会全局影响UI的信息：
+  *   Window尺寸
+  *   提示消息
+  *   当前语言
+  *   当前主题
+  * 更多可能存储的组件信息：
+  *   当前选择
+  *   工具条显示隐藏状态
+  */
+
+import {observable, action} from 'mobx'
+
+export default class UiStore {
+    // 表示在一时间段内请求的个数, 可用做全局 loading
+    @observable reqCount = 0
+
+    @action
+    updateReqCount(num = 0){
+        this.reqCount = this.reqCount + num
+    }
+}
+```
+
+
+<details>
+<summary>Hello/testApi.js 创建测试请求的组件, 项目运行后, 分别点击 testGet, testPost, testDelete 查看 reqCount,变化 | 点击查看代码</summary>
+``` jsx
+import React, {Component} from 'react';
+import { Alert, Button } from "antd";
+import {observer} from 'mobx-react'
+import testApi from '../../api/test'
+import {uiStore} from '../../store'
+import './index.css'
+
+@observer
+export default class TestApi extends Component {
+
+    async testGet(){
+        const result = await testApi.testGet()
+        console.log('TestApi testGet result:', result)
+    }
+
+    async testPost(){
+        const result = await testApi.testPost({})
+        console.log('TestApi testGet result:', result)
+    }
+
+    async testDelete(){
+        const result = await testApi.testDelete({})
+        console.log('TestApi testGet result:', result)
+    }
+
+    render() {
+        return <div className="container">
+            <div>
+                <p>reqCount: {uiStore.reqCount}</p>
+                <Button type="primary" onClick={() => this.testGet()}>testGet</Button>
+                <Button onClick={() => this.testPost()}>testPost</Button>
+                <Button onClick={() => this.testDelete()}>testDelete</Button>
+            </div>
+        </div>
+    }
+}
+```
+</details>
+
+想要请求非本地的接口, 需要添加代理, 具体用法[点这里](https://webpack.docschina.org/configuration/dev-server/#devserver-proxy), 接下来修改 `webpack.dev.js`
+
+``` js
+// easy-mock.com 免费的造假数据的网站
+const ProxyUrl = "https://easy-mock.com/mock/5b8c9f2fdcc57313cd5b6678"
+
+module.exports = WebpackMerge(CommonConfig, {
+    // ...
+    devServer: {
+        // ...
+        proxy: {
+            "/api/*": {
+                target: ProxyUrl,
+                changeOrigin: true,
+                secure: false
+            }
+        }
+    }
+});
+```
+
+``` js
+// store/index.js
+import UiStore from './ui'
+export const uiStore = new UiStore()
+```
+
+修改路由组件, 把刚才创建的 `testApi` 组件添加到路由里
+
+``` jsx
+// router/index.js
+const TestApi = Loadable({
+    loader: () => import('../component/Hello/TestApi'),
+    loading: Loading
+})
+
+<li><Link to="/testapi">TestApi</Link></li>
+
+<Route exact path="/testapi" component={TestApi}/>
+```
+
+------
+
+## Page Not Found (404)
+
+创建404页面
+
+``` sh
+mkdir src/component/NotFound
+touch src/component/NotFound/index.js
+```
+
+``` jsx
+// NotFount/index.js
+import React, {PureComponent} from 'react'
+
+export default class NotFound extends PureComponent {
+    render(){
+        return <div style={{color: 'red', fontSize: 88}}>404</div>
+    }
+}
+```
+
+修改路由组件, 把刚才创建的 `NotFount` 组件添加到路由最下方
+
+``` jsx
+// router/index.js
+<Switch>
+    // ...
+    <Route component={NotFound}/>
+</Switch>
+```
+
+------
+
+## Less
+
+``` sh
+npm i mini-css-extract-plugin less less-loader --save-dev
+```
+
+[mini-css-extract-plugin](https://webpack.js.org/plugins/mini-css-extract-plugin/#minimizing-for-production) | [翻译](http://wangweilin.net/static/pages/npm_minicssextractplugin.html)
+
+> mini-css-extract-plugin 插件用于将css提取到单独的文件。为每个包含css的JS文件创建一个css文件。支持css按需加载。
+
+修改package中的scripts
+
+``` json
+{
+  // ...
+  "scripts": {
+    "dev": "webpack-dev-server --config webpack.dev.js --color --progress",
+    "build": "webpack --config webpack.prod.js --color --progress"
+  }
+  // ...
+}
+```
+
+> 重新整理webpack配置文件
+
+<details>
+<summary>修改后的webpack.common.js</summary>
+``` js
+const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+// 如果预先定义过环境变量，就将其赋值给`ASSET_PATH`变量，否则赋值为根目录
+const ASSET_PATH = process.env.ASSET_PATH || '/';
+
+module.exports = {
+    output: {
+        path: path.join(__dirname, "./dist"),
+        filename: "[name].[chunkhash].js",
+        publicPath: ASSET_PATH
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/, // 正则匹配以 .js 结尾的文件来使用 babel 解析
+                use: ["babel-loader?cacheDirectory=true"], // cacheDirectory是用来缓存编译结果，下次编译加速
+                include: path.join(__dirname, "src") // 需要解析的目录
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: "url-loader",
+                        options: {
+                            // olimit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求
+                            limit: 8192
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    plugins: [
+        new CleanWebpackPlugin(['dist']),
+        new HtmlWebpackPlugin({
+            filename: "index.html",
+            template: path.join(__dirname, "src/index.html")
+        }),
+        new webpack.HashedModuleIdsPlugin()
+    ],
+    optimization: {
+        runtimeChunk: "single",
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
+    }
+};
+```
+</details>    
+
+<details>
+<summary>修改后的webpack.dev.js</summary>
+
+``` js
+const path = require("path");
+const WebpackMerge = require("webpack-merge");
+const CommonConfig = require("./webpack.common");
+
+const ProxyUrl = "https://easy-mock.com/mock/5b8c9f2fdcc57313cd5b6678";
+
+module.exports = WebpackMerge(CommonConfig, {
+    devtool: "inline-source-map",
+    mode: "development",
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: ["style-loader", "css-loader"]
+            },
+            {
+                test: /\.less$/,
+                use: ["style-loader", "css-loader", "less-loader"]
+            }
+        ]
+    },
+    devServer: {
+        contentBase: path.join(__dirname, "dist"),
+        historyApiFallback: true,
+        //  指定使用一个 host。默认是 localhost。如果你希望服务器外部可访问，写法如下
+        host: "0.0.0.0",
+        port: 9090,
+        proxy: {
+            "/api/*": {
+                target: ProxyUrl,
+                changeOrigin: true,
+                secure: false
+            }
+        }
+    }
+});
+```
+</details>
+
+<details>
+<summary>修改后的webpack.prod.js</summary>
+
+``` js
+const WebpackMerge = require("webpack-merge");
+const CommonConfig = require('./webpack.common');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+module.exports = WebpackMerge(CommonConfig, {
+    mode: 'production',
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: [MiniCssExtractPlugin.loader, "css-loader"]
+            },
+            {
+                test: /\.less$/,
+                use: [MiniCssExtractPlugin.loader, "css-loader", 'less-loader']
+            }
+        ]
+    },
+    plugins: [
+        new MiniCssExtractPlugin({
+            filename: "[name].css",
+            chunkFilename: "[id].css"
+        })
+    ]
+})
+```
+</details>
+
+------
+
+## Scss
+
+``` sh
+# 因为sass-loader依赖于node-sass，所以需要先安装node-sass
+npm i sass node-sass --save-dev
+npm i sass-loader --save-dev
+```
+
+[sass-loader](https://github.com/webpack-contrib/sass-loader)
+
+`webpack.dev.js` 中添加
+``` js
+{
+    test: /\.s(a|c)ss$/,
+    use: ["style-loader","css-loader","sass-loader"]
+}
+```
+`webpack.prod.js` 中添加
+
+``` js
+{
+    test: /\.s(a|c)ss$/,
+    use: [MiniCssExtractPlugin.loader,"css-loader","sass-loader"]
+}
+```
+
+------
+
+performance: { hints: false }
+
+------
+
+<details>
+<summary></summary>
+</details>
