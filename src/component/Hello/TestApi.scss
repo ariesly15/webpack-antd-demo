@@ -1,0 +1,11 @@
+$bg: #fff;
+$bc: #a0cff0;
+
+.container {
+    background-color: $bg;
+    border: 5px solid $bc;
+
+    .count {
+        color: cyan;
+    }
+}

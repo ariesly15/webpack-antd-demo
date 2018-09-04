@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-03 11:22:35 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-03 13:57:52
+ * @Last Modified time: 2018-09-04 11:00:26
  */
 
 import React, {Component} from 'react';
@@ -10,7 +10,7 @@ import { Alert, Button } from "antd";
 import {observer, inject} from 'mobx-react'
 import testApi from '../../api/test'
 import {uiStore} from '../../store'
-import './index.css'
+import './TestApi.scss'
 
 @observer
 export default class TestApi extends Component {
@@ -33,7 +33,7 @@ export default class TestApi extends Component {
     render() {
         return <div className="container">
             <div>
-                <p>reqCount: {uiStore.reqCount}</p>
+                <p className="count">reqCount: {uiStore.reqCount}</p>
                 <Button type="primary" onClick={() => this.testGet()}>testGet</Button>
                 <Button onClick={() => this.testPost()}>testPost</Button>
                 <Button onClick={() => this.testDelete()}>testDelete</Button>

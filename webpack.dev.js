@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 20:49:25 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-04 11:19:05
+ * @Last Modified time: 2018-09-04 11:21:08
  */
 
 const path = require("path");
@@ -23,6 +23,10 @@ module.exports = WebpackMerge(CommonConfig, {
             {
                 test: /\.less$/,
                 use: ["style-loader", "css-loader", "less-loader"]
+            },
+            {
+                test: /\.s(a|c)ss$/,
+                use: ["style-loader","css-loader","sass-loader"]
             }
         ]
     },

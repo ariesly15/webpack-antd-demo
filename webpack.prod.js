@@ -20,6 +20,10 @@ module.exports = WebpackMerge(CommonConfig, {
             {
                 test: /\.less$/,
                 use: [MiniCssExtractPlugin.loader, "css-loader", 'less-loader']
+            },
+            {
+                test: /\.s(a|c)ss$/,
+                use: [MiniCssExtractPlugin.loader,"css-loader","sass-loader"]
             }
         ]
     },
