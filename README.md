@@ -2,7 +2,7 @@
 
 ## 说明
 
-> 项目托管于[GitHub](https://github.com/aweleey/webpack-antd-demo)
+> 项目托管于[GitHub](https://github.com/aweleey/webpack-antd-demo), 文档很多, 需要有耐心
 
 1.本教程基于mac环境
 
@@ -21,11 +21,14 @@ mkdir Home
 ```
 
 3.所用的库的版本(2018年09月)是最新的
+
+```
 webpack-antd-demo
 ├── antd@3.8.4
 ├── react@16.4.2
 ├── react-dom@16.4.2
 └── webpack@4.17.1
+```
 
 4.目录说明
 
