@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-03 11:22:35 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-04 11:00:26
+ * @Last Modified time: 2018-09-04 13:33:02
  */
 
 import React, {Component} from 'react';
@@ -31,7 +31,7 @@ export default class TestApi extends Component {
     }
 
     render() {
-        return <div className="container">
+        return <div className="api-container">
             <div>
                 <p className="count">reqCount: {uiStore.reqCount}</p>
                 <Button type="primary" onClick={() => this.testGet()}>testGet</Button>

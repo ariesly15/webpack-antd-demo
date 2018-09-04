@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 17:12:55 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-03 18:05:33
+ * @Last Modified time: 2018-09-04 13:29:36
  */
 
 import React, {Component} from 'react';
@@ -21,7 +21,7 @@ export default class TestAntd extends Component {
     render() {
         const {value, appStore} = this.props
 
-        return <div className="container">
+        return <div className="antd-container">
             <div className="count">count: {appStore.count}</div>
             <button onClick={() => appStore.updateCount(1)}>++</button>
             <button onClick={() => appStore.updateCount(-1)}>--</button>

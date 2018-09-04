@@ -1182,8 +1182,6 @@ export default {
 import './http-interceptors'
 ```
 
-<details>
-<summary>bootstrap/http-interceptors.js 相关错误处理和业务逻辑自行补全 **点击查看代码**</summary>
 ``` js
 // bootstrap/http-interceptors.js 相关错误处理和业务逻辑自行补全
 import axios from 'axios'
@@ -1241,7 +1239,6 @@ const handleError = (error) => {
     }
 }
 ```
-</details>
 
 ``` js
 /**
@@ -1272,9 +1269,8 @@ export default class UiStore {
 }
 ```
 
+Hello/testApi.js 创建测试请求的组件, 项目运行后, 分别点击 testGet, testPost, testDelete 查看 reqCount,变化
 
-<details>
-<summary>Hello/testApi.js 创建测试请求的组件, 项目运行后, 分别点击 testGet, testPost, testDelete 查看 reqCount,变化 | 点击查看代码</summary>
 ``` jsx
 import React, {Component} from 'react';
 import { Alert, Button } from "antd";
@@ -1313,7 +1309,6 @@ export default class TestApi extends Component {
     }
 }
 ```
-</details>
 
 想要请求非本地的接口, 需要添加代理, 具体用法[点这里](https://webpack.docschina.org/configuration/dev-server/#devserver-proxy), 接下来修改 `webpack.dev.js`
 
@@ -1415,8 +1410,7 @@ npm i mini-css-extract-plugin less less-loader --save-dev
 
 > 重新整理webpack配置文件
 
-<details>
-<summary>修改后的webpack.common.js</summary>
+修改后的webpack.common.js
 ``` js
 const path = require("path");
 const webpack = require("webpack");
@@ -1475,10 +1469,8 @@ module.exports = {
     }
 };
 ```
-</details>    
 
-<details>
-<summary>修改后的webpack.dev.js</summary>
+修改后的webpack.dev.js
 
 ``` js
 const path = require("path");
@@ -1518,10 +1510,8 @@ module.exports = WebpackMerge(CommonConfig, {
     }
 });
 ```
-</details>
 
-<details>
-<summary>修改后的webpack.prod.js</summary>
+修改后的webpack.prod.js
 
 ``` js
 const WebpackMerge = require("webpack-merge");
@@ -1550,7 +1540,6 @@ module.exports = WebpackMerge(CommonConfig, {
     ]
 })
 ```
-</details>
 
 ------
 
@@ -1578,6 +1567,16 @@ npm i sass-loader --save-dev
     test: /\.s(a|c)ss$/,
     use: [MiniCssExtractPlugin.loader,"css-loader","sass-loader"]
 }
+```
+
+## 整理项目目录
+
+文章开头有详细的目录说明
+
+``` sh
+cd src
+mkdir pages
+cd common && touch utils.js contants.js
 ```
 
 ------
