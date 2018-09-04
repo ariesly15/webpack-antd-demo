@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 20:52:11 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-02 23:09:37
+ * @Last Modified time: 2018-09-03 18:06:35
  */
 
 const path = require("path");
@@ -25,10 +25,6 @@ module.exports = {
                 test: /\.js$/, // 正则匹配以 .js 结尾的文件来使用 babel 解析
                 use: ["babel-loader?cacheDirectory=true"], // cacheDirectory是用来缓存编译结果，下次编译加速
                 include: path.join(__dirname, "src") // 需要解析的目录
-            },
-            {
-                test: /\.css$/,
-                use: ["style-loader", "css-loader"]
             },
             {
                 test: /\.(png|jpg|gif)$/,
