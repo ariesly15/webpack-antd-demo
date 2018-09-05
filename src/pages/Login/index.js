@@ -8,11 +8,9 @@ import {observer} from 'mobx-react';
 import { appStore } from "../../store";
 import {Link} from 'react-router-dom';
 import './index.less';
+import TestLogin from '../../component/Hello/TestLogin'
 
 const FormItem = Form.Item
-const i18n = {
-    t: value => value
-}
 
 @observer
 class Login extends Component {
@@ -43,15 +41,7 @@ class Login extends Component {
         const pathToGo = location.state ? location.state.from.pathname : '/app'
         
         return <div className='login-container'>
-            <div style={{textAlign: 'center', background: '#fff'}}>
-                <a onClick={() => appStore.updateHasLogin(!appStore.hasLogin)}>
-                    {`更改登录状态(hasLogin: ${appStore.hasLogin})`}
-                </a>
-                <Divider type="vertical"/>
-                <Link to="/app/i18n">/app/i18n</Link>
-                <Divider type="vertical"/>
-                <Link to="/app/antd">/app/antd</Link>
-            </div>
+            <TestLogin/>
             <div className="login-main">
                 <div className="login-bg">
                     <div className='login-content'>
@@ -71,13 +61,13 @@ class Login extends Component {
                         <Form onSubmit={this._submit} className="content-form">
                             <FormItem>
                                 {getFieldDecorator('account', {
-                                    rules: [{required: true, message: i18n.t('login.accountNotNullMsg')}],
+                                    rules: [{required: true, message: 'login.accountNotNullMsg'}],
                                 })(<Input placeholder="Account"/>)}
                             </FormItem>
                             <FormItem>
                                 {getFieldDecorator(
                                     'password',
-                                    {rules: [{required: true, message: i18n.t('login.passwordNotNullMsg')}]})(
+                                    {rules: [{required: true, message: 'login.passwordNotNullMsg'}]})(
                                     <Input placeholder="Password" type="password"/>
                                 )}
                             </FormItem>
