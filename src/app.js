@@ -2,17 +2,18 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-04 15:32:51 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-04 16:37:56
+ * @Last Modified time: 2018-09-04 18:05:33
  */
 
 import React, { Component } from "react";
 import getRouter from "./router";
 import { IntlProvider, addLocaleData } from "react-intl";
+import { LocaleProvider } from "antd";
 import { uiStore } from "./store";
 import { observer } from "mobx-react";
-import zh from 'react-intl/locale-data/zh'
-import en from 'react-intl/locale-data/en'
-addLocaleData([...en, ...zh])
+import zh from "react-intl/locale-data/zh";
+import en from "react-intl/locale-data/en";
+addLocaleData([...en, ...zh]);
 
 @observer
 export default class App extends Component {
@@ -32,13 +33,16 @@ export default class App extends Component {
     }
 
     render() {
-        console.log('uiStore.language:', uiStore.language)
-        const messages = this.getLocale()
+        console.log("uiStore.language:", uiStore.language);
+        const messages = this.getLocale();
+        const lang = uiStore.language;
 
         return (
-            <IntlProvider locale={uiStore.language} messages={messages}>
+            // <LocaleProvider locale={lang}>
+            <IntlProvider locale={lang} messages={messages}>
                 {getRouter()}
             </IntlProvider>
+            // </LocaleProvider>
         );
     }
 }
