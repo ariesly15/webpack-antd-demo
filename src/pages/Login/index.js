@@ -3,10 +3,10 @@
  */
 
 import React, {Component} from 'react';
-import {Button, Checkbox, Form, Icon, Input} from 'antd';
+import {Button, Checkbox, Form, Icon, Input, Divider} from 'antd';
 import {observer} from 'mobx-react';
+import { appStore } from "../../store";
 import {Link} from 'react-router-dom';
-import {appStore} from '../../store'
 import './index.less';
 
 const FormItem = Form.Item
@@ -43,10 +43,15 @@ class Login extends Component {
         const pathToGo = location.state ? location.state.from.pathname : '/app'
         
         return <div className='login-container'>
-            <Button onClick={() => {
-                appStore.updateHasLogin(true)
-                history.push(pathToGo)
-            }}>{`登录(hasLogin:${appStore.hasLogin})`}}</Button>
+            <div style={{textAlign: 'center', background: '#fff'}}>
+                <a onClick={() => appStore.updateHasLogin(!appStore.hasLogin)}>
+                    {`更改登录状态(hasLogin: ${appStore.hasLogin})`}
+                </a>
+                <Divider type="vertical"/>
+                <Link to="/app/i18n">/app/i18n</Link>
+                <Divider type="vertical"/>
+                <Link to="/app/antd">/app/antd</Link>
+            </div>
             <div className="login-main">
                 <div className="login-bg">
                     <div className='login-content'>

@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-04 19:28:43 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-04 19:52:47
+ * @Last Modified time: 2018-09-05 10:40:10
  */
 
 import React, {Component} from 'react'
@@ -36,19 +36,13 @@ const TestI18N = Loadable({
 export default class AppLayout extends Component {
     render(){
         return <Layout>
-        <Nav/>
+        
         <Header className="header">
           <div className="logo" />
-          <Menu
+          <Nav 
             theme="dark"
-            mode="horizontal"
-            defaultSelectedKeys={['2']}
             style={{ lineHeight: '64px' }}
-          >
-            <Menu.Item key="1">nav 1</Menu.Item>
-            <Menu.Item key="2">nav 2</Menu.Item>
-            <Menu.Item key="3">nav 3</Menu.Item>
-          </Menu>
+        />
         </Header>
         <Layout>
           <Sider width={200} style={{ background: '#fff' }}>

@@ -2,30 +2,64 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-04 19:14:29 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-04 20:22:32
+ * @Last Modified time: 2018-09-05 10:51:52
  */
 
 import React, {Component} from 'react'
-import {Link} from 'react-router-dom'
-import {Button} from 'antd'
+import {Link, NavLink} from 'react-router-dom'
+import {Button, Icon, Menu} from 'antd'
+import {NAVIGATOR_DATA} from '../../common/constants'
 import {appStore} from '../../store'
 import {observer} from 'mobx-react'
 import './index.less'
 
+const SubMenu = Menu.SubMenu
+
+const submenu = (item, index) => {
+    if (item.hasOwnProperty('children')) {
+        const subMenuKey = `${item.key}-${index}`
+        return <SubMenu
+            key={subMenuKey}
+            title={<span>{item.icon && <Icon type={item.icon}/>}<span>{item.name}</span></span>}
+        >
+            {item.children.map(item => {
+                if (item.hasOwnProperty('children') && Array.isArray(item.children)) {
+                    return submenu(item)
+                } else {
+                    return <Menu.Item key={item.link}>
+                        <NavLink to={item.link} activeClassName="active">{item.icon &&
+                        <Icon type={item.icon}/>}{item.name}</NavLink>
+                    </Menu.Item>
+                }
+            })}
+        </SubMenu>
+    } else {
+        return <Menu.Item key={item.link}>
+            <NavLink to={item.link} activeClassName="active">
+                {item.icon && <Icon type={item.icon}/>}
+                {item.name}
+            </NavLink>
+        </Menu.Item>
+    }
+}
+
 @observer
 export default class Nav extends Component {
-    render(){
-        return <div className="nav-container">
-            <ul>
-                <li><Link to="/">首页</Link></li>
-                <li><Link to="/app">AppLayout</Link></li>
-                <li><Link to="/login">login</Link></li>
-                <li><Link to="/app/router">TestRouter</Link></li>
-                <li><Link to="/app/antd">TestAntd</Link></li>
-                <li><Link to="/app/testapi">TestApi</Link></li>
-                <li><Link to="/app/i18n">i18n</Link></li>
-            </ul>
-            <Button onClick={() => appStore.updateHasLogin(!appStore.hasLogin)}>{`Login: ${appStore.hasLogin}`}</Button>
-        </div>
+    static defaultProps = {
+        mode: 'horizontal'
+    }
+
+    render() {
+        const {mode, style, location, ...rest} = this.props
+
+        return <Menu
+            {...rest}
+            mode={mode}
+            style={style}
+            // subMenuCloseDelay={300}
+            // defaultSelectedKeys={[location.pathname || '/']}
+        >
+            {NAVIGATOR_DATA.map(submenu)}
+        </Menu>
     }
 }
