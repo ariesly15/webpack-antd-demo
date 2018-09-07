@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-04 19:28:43 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-05 14:46:23
+ * @Last Modified time: 2018-09-06 19:57:55
  */
 
 import React, {Component} from 'react'
@@ -31,6 +31,10 @@ const TestApi = Loadable({
 })
 const TestI18N = Loadable({
     loader: () => import('../../Hello/TestI18N'),
+    loading: Loading
+})
+const Hello = Loadable({
+    loader: () => import('../../Hello'),
     loading: Loading
 })
 
@@ -82,6 +86,7 @@ export default class AppLayout extends Component {
                             <Route exact path="/app/router" component={TestRouter}/>
                             <Route exact path="/app/testapi" component={TestApi}/>
                             <Route exact path="/app/i18n" component={TestI18N}/>
+                            <Route exact path="/app/hello" component={Hello}/>
                         </Content>
                     </Layout>
                 </Layout>

@@ -2,13 +2,14 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-02 20:52:11 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-03 18:06:35
+ * @Last Modified time: 2018-09-07 15:57:38
  */
 
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const pkg = require('./package.json')
 
 // 如果预先定义过环境变量，就将其赋值给`ASSET_PATH`变量，否则赋值为根目录
 const ASSET_PATH = process.env.ASSET_PATH || '/';
@@ -54,8 +55,8 @@ module.exports = {
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: "vendors",
-                    chunks: "all"
+                    chunks: "initial",
+                    name: "vendors"
                 }
             }
         }

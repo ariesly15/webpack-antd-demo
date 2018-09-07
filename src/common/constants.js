@@ -2,7 +2,7 @@
  * @Author: aweleey.li@qunar.com 
  * @Date: 2018-09-04 13:58:42 
  * @Last Modified by: aweleey.li@qunar.com
- * @Last Modified time: 2018-09-05 10:43:46
+ * @Last Modified time: 2018-09-06 19:58:17
  */
 
 export const NAVIGATOR_DATA = [
@@ -41,6 +41,11 @@ export const NAVIGATOR_DATA = [
             {
                 name: 'TestI18N',
                 link: '/app/i18n',
+                key: 'd234'
+            },
+            {
+                name: 'Hello',
+                link: '/app/hello',
                 key: 'd234'
             }
         ]
